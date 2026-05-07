@@ -1,0 +1,28 @@
+/* All interactive states use :focus-visible — no hover-only interactions (ADR-0002) */
+
+:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 3px;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.logo {
+  font-size: clamp(2rem, 8vw, 5rem);
+  font-weight: 700;
+  color: #16a34a;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  opacity: 0.5;
+}
