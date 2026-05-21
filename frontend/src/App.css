@@ -26,3 +26,69 @@ main {
   font-size: clamp(1rem, 3vw, 1.5rem);
   opacity: 0.5;
 }
+
+/* Token entry screen */
+.token-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.token-label {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  opacity: 0.7;
+}
+
+.token-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-family: monospace;
+  background: #1a1a1a;
+  color: #f5f5f5;
+  border: 2px solid #333;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.token-input:focus-visible {
+  outline: 3px solid #16a34a;
+  outline-offset: 3px;
+  border-color: #16a34a;
+}
+
+.token-error {
+  font-size: 0.875rem;
+  color: #ef4444;
+}
+
+.token-submit {
+  padding: 0.75rem 2.5rem;
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  font-weight: 600;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.token-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Paywall screen */
+.paywall-message {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  text-align: center;
+}
+
+.paywall-sub {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  opacity: 0.5;
+  text-align: center;
+}
