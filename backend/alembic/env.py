@@ -6,10 +6,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
 from app.config import settings
-from app.models.base import Base
 from app.models import AccessToken, Event, Stream  # noqa: F401 — register models with metadata
+from app.models.base import Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
