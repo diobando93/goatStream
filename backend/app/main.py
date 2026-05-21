@@ -3,14 +3,17 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import scheduler
 from .auth import require_token
+from .events import router as events_router
 from .models import AccessToken
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Checker scheduler starts here in a future slice (ADR-0004)
+    scheduler.start()  # ADR-0004
     yield
+    scheduler.stop()
 
 
 app = FastAPI(title="GoatStream", lifespan=lifespan)
@@ -21,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(events_router)
 
 
 @app.get("/health")
