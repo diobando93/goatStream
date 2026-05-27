@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -13,7 +14,10 @@ class Stream(Base):
     event_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("events.id"), nullable=False)
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
     # "hls" | "embed" — HLS always ranked above embed (ADR-0001)
-    type: Mapped[str] = mapped_column(String(8), nullable=False)
-    # "live" | "dead" | "unknown"
-    health: Mapped[str] = mapped_column(String(8), nullable=False, default="unknown")
+    subtype: Mapped[str] = mapped_column(String(8), nullable=False)
     priority: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # "live" | "dead" | "unknown"
+    status: Mapped[str] = mapped_column(String(8), nullable=False, default="unknown")
+    last_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )

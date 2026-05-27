@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import scheduler
+from .admin import create_admin
 from .auth import require_token
 from .events import router as events_router
 from .models import AccessToken
@@ -25,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+create_admin(app)
 app.include_router(events_router)
 
 
