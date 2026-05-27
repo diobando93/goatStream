@@ -46,6 +46,25 @@ def _parse(raw: dict, sport_label: str) -> dict:
     }
 
 
+# TheSportsDB strStatus values that indicate an event has ended
+_FINISHED_STATUSES = frozenset({"Match Finished", "FT", "AET", "AP", "Finished"})
+
+
+async def fetch_event_status(external_id: str) -> str | None:
+    url = f"{settings.sports_api_url}/lookupevent.php"
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url, params={"id": external_id})
+        resp.raise_for_status()
+    events = resp.json().get("events") or []
+    return events[0].get("strStatus") if events else None
+
+
+def is_finished(api_status: str | None) -> bool:
+    if not api_status:
+        return False
+    return any(s in api_status for s in _FINISHED_STATUSES)
+
+
 async def fetch_todays_events() -> list[dict]:
     today = date.today()
     results: list[dict] = []

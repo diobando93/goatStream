@@ -3,10 +3,12 @@ import uuid
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy.dialects.postgresql import insert
 
 from .config import settings
 from .database import async_session
+from .lifecycle import tick as lifecycle_tick
 from .models import Event
 from .sports_api import fetch_todays_events
 
@@ -43,6 +45,12 @@ def start() -> None:
         ingest_events,
         CronTrigger(hour=settings.events_fetch_hour, minute=0),
         id="daily_events_ingest",
+        replace_existing=True,
+    )
+    _scheduler.add_job(
+        lifecycle_tick,
+        IntervalTrigger(minutes=1),
+        id="lifecycle_tick",
         replace_existing=True,
     )
     _scheduler.start()
