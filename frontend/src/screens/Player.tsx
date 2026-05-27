@@ -5,7 +5,7 @@ type Props = {
   onBack: () => void;
 };
 
-export default function Player({ eventId: _eventId, onBack }: Props) {
+export default function Player({ onBack }: Props) {
   const backRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
