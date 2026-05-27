@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
@@ -15,13 +15,17 @@ async def get_today_events(
     _token: AccessToken = Depends(require_token),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     start = datetime(today.year, today.month, today.day, tzinfo=timezone.utc)
     end = start + timedelta(days=1)
 
     result = await db.execute(
         select(Event)
-        .where(Event.start_time >= start, Event.start_time < end)
+        .where(
+            Event.start_time >= start,
+            Event.start_time < end,
+            Event.status.in_(["SCHEDULED", "LIVE"]),
+        )
         .order_by(Event.start_time)
     )
     events = result.scalars().all()
