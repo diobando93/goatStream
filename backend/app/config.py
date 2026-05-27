@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     max_duration_f1: int = 240
     max_duration_basketball: int = 180
     max_duration_default: int = 180  # fallback for unlisted sports
+    # Checker job intervals in seconds
+    checker_scheduled_interval: int = 600   # 10 min — pre-match
+    checker_live_interval: int = 90         # 90 s  — live critical window
+    checker_channel_interval: int = 300     # 5 min — always-on channels
+    checker_hls_timeout: float = 10.0
+    checker_embed_timeout: float = 10.0
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

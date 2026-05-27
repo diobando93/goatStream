@@ -26,15 +26,10 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
 
   useEffect(() => {
     const token = getStoredToken();
-    console.log("[Home] useEffect fired — token:", token);
-    if (!token) {
-      console.log("[Home] no token, returning early");
-      return;
-    }
+    if (!token) return;
     fetchTodayEvents(token)
       .then(setEvents)
       .catch((e: Error) => {
-        console.log("[Home] fetchTodayEvents error:", e.message);
         if (e.message === "expired") onExpired();
       })
       .finally(() => setLoading(false));

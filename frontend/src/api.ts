@@ -18,12 +18,9 @@ export function clearToken(): void {
 export type TokenStatus = "valid" | "expired" | "invalid";
 
 export async function fetchTodayEvents(token: string): Promise<ApiEvent[]> {
-  const url = `${API_BASE}/events/today`;
-  console.log("[api] fetchTodayEvents called — url:", url, "token:", token.slice(0, 8) + "…");
-  const res = await fetch(url, {
+  const res = await fetch(`${API_BASE}/events/today`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  console.log("[api] fetchTodayEvents response status:", res.status);
   if (res.status === 403) throw new Error("expired");
   if (!res.ok) throw new Error("fetch_failed");
   return res.json();
