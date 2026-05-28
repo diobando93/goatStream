@@ -1,4 +1,4 @@
-import type { ApiEvent, ApiStream } from "./types";
+import type { ApiChannel, ApiEvent, ApiStream } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 const TOKEN_KEY = "goatstream_token";
@@ -19,6 +19,15 @@ export type TokenStatus = "valid" | "expired" | "invalid";
 
 export async function fetchTodayEvents(token: string): Promise<ApiEvent[]> {
   const res = await fetch(`${API_BASE}/events/today`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.status === 403) throw new Error("expired");
+  if (!res.ok) throw new Error("fetch_failed");
+  return res.json();
+}
+
+export async function fetchChannels(token: string): Promise<ApiChannel[]> {
+  const res = await fetch(`${API_BASE}/channels`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 403) throw new Error("expired");

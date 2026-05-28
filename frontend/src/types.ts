@@ -1,3 +1,10 @@
+export interface ApiChannel {
+  id: string;
+  title: string;
+  poster_url: string | null;
+  has_live_stream: boolean;
+}
+
 export interface ApiStream {
   id: string;
   url: string;

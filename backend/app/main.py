@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from . import scheduler
 from .admin import create_admin
 from .auth import require_token
+from .channels import router as channels_router
 from .database import async_session
 from .events import router as events_router
 from .models import AccessToken, Event
@@ -53,6 +54,7 @@ app.add_middleware(
 
 create_admin(app)
 app.include_router(events_router)
+app.include_router(channels_router)
 
 
 @app.get("/health")

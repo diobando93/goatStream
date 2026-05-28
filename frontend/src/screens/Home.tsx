@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { fetchTodayEvents, getStoredToken } from "../api";
-import type { ApiEvent } from "../types";
+import { fetchChannels, fetchTodayEvents, getStoredToken } from "../api";
+import type { ApiChannel, ApiEvent } from "../types";
 
 type Tab = "events" | "channels";
 
@@ -20,9 +20,16 @@ function matchupLabel(e: ApiEvent): string {
 
 export default function Home({ onSelectEvent, onExpired }: Props) {
   const [tab, setTab] = useState<Tab>("events");
+
   const [events, setEvents] = useState<ApiEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const firstCardRef = useRef<HTMLButtonElement>(null);
+  const [eventsLoading, setEventsLoading] = useState(true);
+
+  const [channels, setChannels] = useState<ApiChannel[]>([]);
+  const [channelsLoading, setChannelsLoading] = useState(false);
+  const [channelsFetched, setChannelsFetched] = useState(false);
+
+  const firstEventRef = useRef<HTMLButtonElement>(null);
+  const firstChannelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -32,8 +39,26 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
       .catch((e: Error) => {
         if (e.message === "expired") onExpired();
       })
-      .finally(() => setLoading(false));
+      .finally(() => setEventsLoading(false));
   }, [onExpired]);
+
+  useEffect(() => {
+    if (tab !== "channels" || channelsFetched) return;
+    const token = getStoredToken();
+    if (!token) return;
+    setChannelsFetched(true);
+    setChannelsLoading(true);
+    fetchChannels(token)
+      .then((data) => {
+        setChannels(data);
+        // Focus first card after data arrives
+        requestAnimationFrame(() => firstChannelRef.current?.focus());
+      })
+      .catch((e: Error) => {
+        if (e.message === "expired") onExpired();
+      })
+      .finally(() => setChannelsLoading(false));
+  }, [tab, channelsFetched, onExpired]);
 
   function handleCardKey(e: React.KeyboardEvent, id: string) {
     if (e.key === "Enter") onSelectEvent(id);
@@ -46,7 +71,7 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
         <nav className="nav-tabs">
           <button
             className={`nav-tab${tab === "events" ? " nav-tab--active" : ""}`}
-            onClick={() => { setTab("events"); firstCardRef.current?.focus(); }}
+            onClick={() => { setTab("events"); firstEventRef.current?.focus(); }}
           >
             Events
           </button>
@@ -62,16 +87,16 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
       <main className="home-content">
         {tab === "events" && (
           <>
-            {loading && <p className="home-status">Loading…</p>}
-            {!loading && events.length === 0 && (
+            {eventsLoading && <p className="home-status">Loading…</p>}
+            {!eventsLoading && events.length === 0 && (
               <p className="home-status">No events scheduled for today.</p>
             )}
-            {!loading && events.length > 0 && (
+            {!eventsLoading && events.length > 0 && (
               <div className="event-grid">
                 {events.map((event, i) => (
                   <button
                     key={event.id}
-                    ref={i === 0 ? firstCardRef : undefined}
+                    ref={i === 0 ? firstEventRef : undefined}
                     className="event-card"
                     onClick={() => onSelectEvent(event.id)}
                     onKeyDown={(e) => handleCardKey(e, event.id)}
@@ -94,7 +119,35 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
         )}
 
         {tab === "channels" && (
-          <p className="home-status">Channels coming in slice 9.</p>
+          <>
+            {channelsLoading && <p className="home-status">Loading…</p>}
+            {!channelsLoading && channels.length === 0 && (
+              <p className="home-status">No channels available.</p>
+            )}
+            {!channelsLoading && channels.length > 0 && (
+              <div className="channel-grid">
+                {channels.map((ch, i) => (
+                  <button
+                    key={ch.id}
+                    ref={i === 0 ? firstChannelRef : undefined}
+                    className="channel-card"
+                    onClick={() => onSelectEvent(ch.id)}
+                    onKeyDown={(e) => handleCardKey(e, ch.id)}
+                  >
+                    {ch.poster_url ? (
+                      <img className="channel-logo" src={ch.poster_url} alt="" />
+                    ) : (
+                      <div className="channel-logo channel-logo--placeholder" />
+                    )}
+                    <div className="channel-info">
+                      <p className="channel-name">{ch.title}</p>
+                      {ch.has_live_stream && <span className="live-badge">LIVE</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
