@@ -1,3 +1,9 @@
+export interface ApiStream {
+  id: string;
+  url: string;
+  subtype: "hls" | "embed";
+}
+
 export interface ApiEvent {
   id: string;
   type: string;

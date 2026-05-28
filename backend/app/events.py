@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,6 +47,31 @@ async def get_today_events(
         }
         for e in events
     ]
+
+
+@router.get("/{event_id}/stream")
+async def get_best_stream(
+    event_id: uuid.UUID,
+    _token: AccessToken = Depends(require_token),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    result = await db.execute(
+        select(Stream)
+        .where(Stream.event_id == event_id, Stream.status == "live")
+        .order_by(
+            case((Stream.subtype == "hls", 0), else_=1),
+            Stream.priority,
+        )
+        .limit(1)
+    )
+    stream = result.scalar_one_or_none()
+    if stream is None:
+        raise HTTPException(status_code=404, detail="no_live_stream")
+    return {
+        "id": str(stream.id),
+        "url": stream.url,
+        "subtype": stream.subtype,
+    }
 
 
 @router.get("/{event_id}/streams")
