@@ -1,10 +1,14 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+
+if TYPE_CHECKING:
+    from .event import Event
 
 
 class Stream(Base):
@@ -21,3 +25,4 @@ class Stream(Base):
     last_checked_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    event: Mapped["Event"] = relationship("Event", lazy="select")

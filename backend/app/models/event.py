@@ -27,3 +27,6 @@ class Event(Base):
         String(64), nullable=True, unique=True, index=True
     )
     poster_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+
+    def __str__(self) -> str:
+        return self.title

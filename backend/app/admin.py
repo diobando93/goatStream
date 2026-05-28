@@ -67,7 +67,7 @@ class StreamAdmin(ModelView, model=Stream):
     column_formatters = {
         Stream.subtype: lambda m, a: "HLS" if m.subtype == "hls" else "Embed",
     }
-    form_columns = [Stream.event_id, Stream.url, Stream.subtype, Stream.priority, Stream.status]
+    form_columns = ["event", Stream.url, Stream.subtype, Stream.priority, Stream.status]
 
 
 def create_admin(app: FastAPI) -> Admin:
