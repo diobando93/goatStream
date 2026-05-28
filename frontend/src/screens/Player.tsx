@@ -147,7 +147,7 @@ export default function Player({ eventId, onBack }: Props) {
     }
     if ((e.key === " " || e.key === "MediaPlayPause") && videoRef.current) {
       e.preventDefault();
-      videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause();
+      if (videoRef.current.paused) { videoRef.current.play(); } else { videoRef.current.pause(); }
     }
   }
 
