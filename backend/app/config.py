@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     checker_channel_interval: int = 300     # 5 min — always-on channels
     checker_hls_timeout: float = 10.0
     checker_embed_timeout: float = 10.0
+    iptv_sports_m3u_url: str = "https://iptv-org.github.io/iptv/categories/sports.m3u"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

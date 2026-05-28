@@ -12,13 +12,15 @@ type Screen = "loading" | "token-entry" | "paywall" | "home" | "player";
 export default function App() {
   useDPad();
   const [screen, setScreen] = useState<Screen>("loading");
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedKind, setSelectedKind] = useState<"event" | "channel">("event");
 
   const goPaywall = useCallback(() => setScreen("paywall"), []);
   const goHome = useCallback(() => setScreen("home"), []);
   const goTokenEntry = useCallback(() => setScreen("token-entry"), []);
-  const goPlayer = useCallback((id: string) => {
-    setSelectedEventId(id);
+  const goPlayer = useCallback((id: string, kind: "event" | "channel" = "event") => {
+    setSelectedId(id);
+    setSelectedKind(kind);
     setScreen("player");
   }, []);
 
@@ -43,8 +45,8 @@ export default function App() {
   if (screen === "paywall")
     return <Paywall onRetry={goTokenEntry} />;
 
-  if (screen === "player" && selectedEventId)
-    return <Player eventId={selectedEventId} onBack={goHome} />;
+  if (screen === "player" && selectedId)
+    return <Player id={selectedId} kind={selectedKind} onBack={goHome} />;
 
-  return <Home onSelectEvent={goPlayer} onExpired={goPaywall} />;
+  return <Home onSelect={goPlayer} onExpired={goPaywall} />;
 }

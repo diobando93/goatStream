@@ -35,8 +35,13 @@ export async function fetchChannels(token: string): Promise<ApiChannel[]> {
   return res.json();
 }
 
-export async function fetchBestStream(eventId: string, token: string): Promise<ApiStream> {
-  const res = await fetch(`${API_BASE}/events/${eventId}/stream`, {
+export async function fetchBestStream(
+  id: string,
+  kind: "event" | "channel",
+  token: string,
+): Promise<ApiStream> {
+  const path = kind === "channel" ? `/channels/${id}/stream` : `/events/${id}/stream`;
+  const res = await fetch(`${API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (res.status === 403) throw new Error("expired");

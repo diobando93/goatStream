@@ -4,7 +4,8 @@ import { fetchBestStream, getStoredToken } from "../api";
 import type { ApiStream } from "../types";
 
 type Props = {
-  eventId: string;
+  id: string;
+  kind: "event" | "channel";
   onBack: () => void;
 };
 
@@ -13,7 +14,7 @@ type Status = "loading" | "playing" | "reconnecting" | "unavailable";
 const RETRY_DELAY_MS = 5_000;
 const UNAVAILABLE_AFTER_MS = 30_000;
 
-export default function Player({ eventId, onBack }: Props) {
+export default function Player({ id, kind, onBack }: Props) {
   const [status, setStatus] = useState<Status>("loading");
   const [stream, setStream] = useState<ApiStream | null>(null);
 
@@ -93,7 +94,7 @@ export default function Player({ eventId, onBack }: Props) {
 
       let next: ApiStream | null = null;
       try {
-        next = await fetchBestStream(eventId, token);
+        next = await fetchBestStream(id, kind, token);
       } catch {
         // no live stream or network error — keep retrying
       }
@@ -129,7 +130,7 @@ export default function Player({ eventId, onBack }: Props) {
     const token = getStoredToken();
     if (!token) { onBack(); return; }
 
-    fetchBestStream(eventId, token)
+    fetchBestStream(id, kind, token)
       .then((s) => { if (mountedRef.current) applyStream(s); })
       .catch(() => { if (mountedRef.current) setStatus("unavailable"); });
 
@@ -138,7 +139,7 @@ export default function Player({ eventId, onBack }: Props) {
       clearTimers();
       cleanupMedia();
     };
-  }, [eventId, onBack]);
+  }, [id, kind, onBack]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Backspace" || e.key === "GoBack") {

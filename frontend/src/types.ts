@@ -1,8 +1,7 @@
 export interface ApiChannel {
   id: string;
-  title: string;
-  poster_url: string | null;
-  has_live_stream: boolean;
+  name: string;
+  status: "live" | "dead" | "unknown";
 }
 
 export interface ApiStream {

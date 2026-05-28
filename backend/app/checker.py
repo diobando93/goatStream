@@ -47,15 +47,11 @@ async def _validate(stream: Stream) -> bool:
     return await _validate_embed(stream.url)
 
 
-async def _run_checks(label: str, event_filter: Any) -> None:
+async def _run_checks(label: str, stmt: Any) -> None:
     now = datetime.now(timezone.utc)
 
     async with async_session() as session:
-        result = await session.execute(
-            select(Stream)
-            .join(Event, Stream.event_id == Event.id)
-            .where(event_filter)
-        )
+        result = await session.execute(stmt)
         streams = result.scalars().all()
 
     if not streams:
@@ -80,12 +76,22 @@ async def _run_checks(label: str, event_filter: Any) -> None:
 
 
 async def check_scheduled() -> None:
-    await _run_checks("scheduled", Event.status == "SCHEDULED")
+    stmt = (
+        select(Stream)
+        .join(Event, Stream.event_id == Event.id)
+        .where(Event.status == "SCHEDULED")
+    )
+    await _run_checks("scheduled", stmt)
 
 
 async def check_live() -> None:
-    await _run_checks("live", Event.status == "LIVE")
+    stmt = (
+        select(Stream)
+        .join(Event, Stream.event_id == Event.id)
+        .where(Event.status == "LIVE")
+    )
+    await _run_checks("live", stmt)
 
 
 async def check_channels() -> None:
-    await _run_checks("channels", Event.type == "channel")
+    await _run_checks("channels", select(Stream).where(Stream.event_id.is_(None)))

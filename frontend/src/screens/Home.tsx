@@ -5,7 +5,7 @@ import type { ApiChannel, ApiEvent } from "../types";
 type Tab = "events" | "channels";
 
 type Props = {
-  onSelectEvent: (id: string) => void;
+  onSelect: (id: string, kind: "event" | "channel") => void;
   onExpired: () => void;
 };
 
@@ -18,7 +18,7 @@ function matchupLabel(e: ApiEvent): string {
   return e.home_team && e.away_team ? `${e.home_team} vs ${e.away_team}` : e.title;
 }
 
-export default function Home({ onSelectEvent, onExpired }: Props) {
+export default function Home({ onSelect, onExpired }: Props) {
   const [tab, setTab] = useState<Tab>("events");
 
   const [events, setEvents] = useState<ApiEvent[]>([]);
@@ -51,7 +51,6 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
     fetchChannels(token)
       .then((data) => {
         setChannels(data);
-        // Focus first card after data arrives
         requestAnimationFrame(() => firstChannelRef.current?.focus());
       })
       .catch((e: Error) => {
@@ -59,10 +58,6 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
       })
       .finally(() => setChannelsLoading(false));
   }, [tab, channelsFetched, onExpired]);
-
-  function handleCardKey(e: React.KeyboardEvent, id: string) {
-    if (e.key === "Enter") onSelectEvent(id);
-  }
 
   return (
     <div className="home-screen">
@@ -98,8 +93,8 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
                     key={event.id}
                     ref={i === 0 ? firstEventRef : undefined}
                     className="event-card"
-                    onClick={() => onSelectEvent(event.id)}
-                    onKeyDown={(e) => handleCardKey(e, event.id)}
+                    onClick={() => onSelect(event.id, "event")}
+                    onKeyDown={(e) => { if (e.key === "Enter") onSelect(event.id, "event"); }}
                   >
                     <div className="card-meta">
                       {event.sport && <span className="sport-badge">{event.sport}</span>}
@@ -131,17 +126,13 @@ export default function Home({ onSelectEvent, onExpired }: Props) {
                     key={ch.id}
                     ref={i === 0 ? firstChannelRef : undefined}
                     className="channel-card"
-                    onClick={() => onSelectEvent(ch.id)}
-                    onKeyDown={(e) => handleCardKey(e, ch.id)}
+                    onClick={() => onSelect(ch.id, "channel")}
+                    onKeyDown={(e) => { if (e.key === "Enter") onSelect(ch.id, "channel"); }}
                   >
-                    {ch.poster_url ? (
-                      <img className="channel-logo" src={ch.poster_url} alt="" />
-                    ) : (
-                      <div className="channel-logo channel-logo--placeholder" />
-                    )}
+                    <div className="channel-logo channel-logo--placeholder" />
                     <div className="channel-info">
-                      <p className="channel-name">{ch.title}</p>
-                      {ch.has_live_stream && <span className="live-badge">LIVE</span>}
+                      <p className="channel-name">{ch.name}</p>
+                      {ch.status === "live" && <span className="live-badge">LIVE</span>}
                     </div>
                   </button>
                 ))}

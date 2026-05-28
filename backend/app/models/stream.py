@@ -15,7 +15,8 @@ class Stream(Base):
     __tablename__ = "streams"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    event_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("events.id"), nullable=False)
+    event_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("events.id"), nullable=True)
+    name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     url: Mapped[str] = mapped_column(String(2048), nullable=False)
     # "hls" | "embed" — HLS always ranked above embed (ADR-0001)
     subtype: Mapped[str] = mapped_column(String(8), nullable=False)

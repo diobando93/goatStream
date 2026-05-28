@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from . import scheduler
 from .admin import create_admin
 from .auth import require_token
+from .channels import channels_if_empty
 from .channels import router as channels_router
 from .database import async_session
 from .events import router as events_router
@@ -39,6 +40,7 @@ async def _ingest_if_empty() -> None:
 async def lifespan(app: FastAPI):
     scheduler.start()  # ADR-0004
     await _ingest_if_empty()
+    await channels_if_empty()
     yield
     scheduler.stop()
 
